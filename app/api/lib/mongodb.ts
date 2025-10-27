@@ -2,10 +2,6 @@ import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
-
 /** 
  * Type definition for cached MongoDB connection object.
  */
@@ -35,6 +31,11 @@ if (!global.mongoose) {
  * Reuses existing connection if available.
  */
 async function dbConnect() {
+  // Check for MONGODB_URI at runtime (not build time)
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
