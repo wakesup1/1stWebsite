@@ -8,11 +8,11 @@ import Transaction from '../../models/Item';
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     const deletedTransaction = await Transaction.findByIdAndDelete(id);
 
@@ -41,11 +41,11 @@ export async function DELETE(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     const updatedTransaction = await Transaction.findByIdAndUpdate(
