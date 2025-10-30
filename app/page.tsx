@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "./contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Type definitions for transaction data
 type Transaction = {
@@ -15,6 +18,8 @@ type Transaction = {
 };
 
 export default function Home() {
+  const { user, logout, isLoading } = useAuth();
+  
   // State management for transactions and form inputs
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [type, setType] = useState<"income" | "expense">("expense");
@@ -136,17 +141,66 @@ export default function Home() {
     });
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="text-6xl mb-4">🔒</div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            Authentication Required
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Please sign in to access the Budget Tracker
+          </p>
+          <Link
+            href="/auth"
+            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-8 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all shadow-lg"
+          >
+            Go to Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            💰 Budget Tracker
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Track your income and expenses with cloud storage
-          </p>
+        {/* Header with User Info */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+              💰 Budget Tracker
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Track your income and expenses with cloud storage
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Welcome back,</p>
+              <p className="font-semibold text-gray-800 dark:text-white">{user.name}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-all"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}
